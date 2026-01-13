@@ -1,6 +1,6 @@
 // src/components/ui/dashboard/latest-invoices.tsx
 
-import { Resource, component$, useResource$ } from "@builder.io/qwik";
+import { component$, Resource, useResource$ } from "@builder.io/qwik";
 import { HiArrowPathOutline } from "@qwikest/icons/heroicons";
 import { LatestInvoicesSkeleton } from "~/components/ui/skeletons";
 import { fetchLatestInvoices } from "~/data/queries";

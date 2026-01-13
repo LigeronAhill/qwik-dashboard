@@ -27,7 +27,7 @@ export const invoices = p.pgTable("invoices", {
     customerID: p
         .uuid("customer_id")
         .notNull()
-        .references(() => customers.id, {onDelete: "cascade"}),
+        .references(() => customers.id, { onDelete: "cascade" }),
     amount: p.integer().notNull(),
     status: invoiceStatusEnum().notNull().default("pending"),
     date: p.timestamp().notNull().defaultNow(),

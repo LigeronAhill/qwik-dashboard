@@ -5,8 +5,8 @@ import {
     HiInboxOutline,
     HiUserGroupOutline,
 } from "@qwikest/icons/heroicons";
-import { CardsSkeleton } from "../skeletons";
 import { fetchCardData } from "~/data/queries";
+import { CardsSkeleton } from "../skeletons";
 
 const iconMap = {
     collected: HiBanknotesOutline,
