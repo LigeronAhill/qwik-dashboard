@@ -59,11 +59,10 @@
         "undici": "*",
         "vercel": "^29.1.1",
         "vite": "7.2.6",
-        "vite-tsconfig-paths": "^4.2.1"
+        "vite-tsconfig-paths": "^4.2.1",
+        "@neondatabase/serverless": "^1.0.2"
     },
     "dependencies": {
-        "@fontsource-variable/inter": "^5.2.8",
-        "@neondatabase/serverless": "^1.0.2",
-        "dotenv": "^17.2.3"
+        "@fontsource-variable/inter": "^5.2.8"
     }
 }
