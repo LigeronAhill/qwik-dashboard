@@ -25,7 +25,6 @@ export const NavLinks = component$(() => {
     const location = useLocation();
     const url = location.url;
     const pathname = url.pathname.replace(/\/$/, "");
-    console.log("pathname", pathname);
     return (
         <ul>
             {links.map((link) => {
