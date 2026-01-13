@@ -1,7 +1,6 @@
 import { server$ } from "@builder.io/qwik-city";
 import { count, desc, eq, ilike, or, sql, sum } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import { InvoicesTable, LatestInvoice } from "~/lib/definitions";
 import { customers, invoices, Revenue, schema } from "../../drizzle/schema";
 
@@ -9,13 +8,7 @@ const getDB = server$(function () {
     const dbURL = this.env.get("DATABASE_URL");
     if (!dbURL)
         throw new Error("DATABASE_URL environment variable must be set!");
-    const pool = new Pool({
-        connectionString: dbURL,
-        max: 20,
-        idleTimeoutMillis: 30 * 1000,
-    });
-    return drizzle({
-        client: pool,
+    return drizzle(dbURL, {
         casing: "snake_case",
         schema: schema,
     });
