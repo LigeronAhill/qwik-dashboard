@@ -42,7 +42,7 @@ export const Table = component$(({ data }: { data: InvoicesTable[] }) => {
                                     </div>
                                     <div class="flex justify-end gap-2">
                                         <UpdateInvoice id={invoice.id} />
-                                        <DeleteInvoice />
+                                        <DeleteInvoice id={invoice.id} />
                                     </div>
                                 </div>
                             </div>
