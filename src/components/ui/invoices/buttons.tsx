@@ -5,6 +5,7 @@ import {
     HiPlusOutline,
     HiTrashOutline,
 } from "@qwikest/icons/heroicons";
+import { useDeleteInvoice } from "~/routes/dashboard/invoices";
 
 export const CreateInvoice = component$(() => {
     return (
@@ -18,10 +19,10 @@ export const CreateInvoice = component$(() => {
     );
 });
 
-export const UpdateInvoice = component$(() => {
+export const UpdateInvoice = component$(({ id }: { id: string }) => {
     return (
         <Link
-            href="/dashboard/invoices"
+            href={`/dashboard/invoices/${id}/edit`}
             class="rounded-md border p-2 hover:bg-gray-100"
         >
             <HiPencilOutline class="w-5" />
@@ -29,10 +30,16 @@ export const UpdateInvoice = component$(() => {
     );
 });
 
-export const DeleteInvoice = component$(() => {
+export const DeleteInvoice = component$(({ id }: { id: string }) => {
+    const deleteInvoiceAction = useDeleteInvoice();
     return (
         <>
-            <button class="rounded-md border p-2 hover:bg-gray-100">
+            <button
+                onClick$={async () => {
+                    await deleteInvoiceAction.submit({ id });
+                }}
+                class="cursor-pointer rounded-md border p-2 hover:bg-gray-100"
+            >
                 <span class="sr-only">Delete</span>
                 <HiTrashOutline class="w-5" />
             </button>

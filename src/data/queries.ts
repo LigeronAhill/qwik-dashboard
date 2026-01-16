@@ -1,17 +1,41 @@
 import { server$ } from "@builder.io/qwik-city";
 import { count, desc, eq, ilike, or, sql, sum } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-serverless";
+import { drizzle as localDrizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { InvoicesTable, LatestInvoice } from "~/lib/definitions";
-import { customers, invoices, Revenue, schema } from "../../drizzle/schema";
+import {
+    customers,
+    InsertInvoice,
+    invoices,
+    Revenue,
+    SelectCustomer,
+    SelectInvoice,
+    schema,
+} from "../../drizzle/schema";
 
 const getDB = server$(function () {
     const dbURL = this.env.get("DATABASE_URL");
     if (!dbURL)
         throw new Error("DATABASE_URL environment variable must be set!");
-    return drizzle(dbURL, {
-        casing: "snake_case",
-        schema: schema,
-    });
+    if (this.env.get("LOCAL_DEV")) {
+        const pool = new Pool({
+            connectionString: dbURL,
+            max: 10,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 2000,
+        });
+        return localDrizzle({
+            client: pool,
+            casing: "snake_case",
+            schema: schema,
+        });
+    } else {
+        return drizzle(dbURL, {
+            casing: "snake_case",
+            schema: schema,
+        });
+    }
 });
 
 export const fetchRevenue = server$(async function (): Promise<Revenue[]> {
@@ -108,7 +132,7 @@ export const fetchLatestInvoices = server$(async function (): Promise<
             amount: i.amount.toString(),
         }));
     } catch (error) {
-        console.error("Database Error:", error);
+        console.error("Failed to fetch the latest invoices:", error);
         throw new Error("Failed to fetch the latest invoices.");
     }
 });
@@ -188,7 +212,83 @@ export const fetchFilteredInvoices = server$(async function (
             totalItems: totalItems,
         };
     } catch (error) {
-        console.error("Database Error:", error);
-        throw new Error("Failed to fetch invoices.");
+        console.error("Failed to fetch filtered invoices:", error);
+        throw new Error("Failed to fetch filtered invoices.");
+    }
+});
+
+export const fetchCustomers = server$(async function (): Promise<
+    SelectCustomer[]
+> {
+    const db = await getDB();
+    try {
+        const customers = db.query.customers.findMany();
+        return customers;
+    } catch (err) {
+        console.error("Error fetching customers:", err);
+        throw new Error(
+            "Failed to fetch customers data:" + (err as Error).message,
+        );
+    }
+});
+
+export const createInvoice = server$(async function (
+    data: InsertInvoice,
+): Promise<SelectInvoice> {
+    const db = await getDB();
+    try {
+        const [created] = await db.insert(invoices).values(data).returning();
+        return created;
+    } catch (err) {
+        console.error("Error creating invoice:", err);
+        throw new Error("Failed to create invoice:" + (err as Error).message);
+    }
+});
+
+export const updateInvoice = server$(async function (
+    data: InsertInvoice,
+): Promise<SelectInvoice> {
+    const db = await getDB();
+    try {
+        if (!data.id) throw new Error("Invoice ID is required");
+        const [updated] = await db
+            .update(invoices)
+            .set(data)
+            .where(eq(invoices.id, data.id))
+            .returning();
+        return updated;
+    } catch (err) {
+        console.error("Error updating invoice:", err);
+        throw new Error("Failed to update invoice:" + (err as Error).message);
+    }
+});
+
+export const fetchInvoiceByID = server$(async function (
+    id: string,
+): Promise<SelectInvoice | undefined> {
+    const db = await getDB();
+    try {
+        const invoice = await db.query.invoices.findFirst({
+            where: eq(invoices.id, id),
+        });
+        if (invoice) {
+            invoice.amount = invoice.amount / 100;
+        }
+        return invoice;
+    } catch (err) {
+        console.error("Error fetching invoice:", err);
+        throw new Error("Failed to fetch invoice:" + (err as Error).message);
+    }
+});
+
+export const deleteInvoice = server$(async function (
+    id: string,
+): Promise<void> {
+    const db = await getDB();
+    try {
+        await db.delete(invoices).where(eq(invoices.id, id));
+    } catch (err) {
+        console.error("Error deleting invoice:", err);
+        throw new Error("Failed to delete invoice:" + (err as Error).message);
     }
 });

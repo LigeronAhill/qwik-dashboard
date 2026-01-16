@@ -1,11 +1,16 @@
 import { component$, Resource, useResource$ } from "@builder.io/qwik";
-import { useLocation } from "@builder.io/qwik-city";
+import { DocumentHead, routeAction$, useLocation } from "@builder.io/qwik-city";
 import { CreateInvoice } from "~/components/ui/invoices/buttons";
 import { Pagination } from "~/components/ui/invoices/pagination";
 import { Table } from "~/components/ui/invoices/table";
 import { Search } from "~/components/ui/search";
 import { InvoicesTableSkeleton } from "~/components/ui/skeletons";
-import { fetchFilteredInvoices } from "~/data/queries";
+import { deleteInvoice, fetchFilteredInvoices } from "~/data/queries";
+
+export const useDeleteInvoice = routeAction$(async (data, { redirect }) => {
+    await deleteInvoice(data.id.toString());
+    throw redirect(302, "/dashboard/invoices");
+});
 
 export default component$(() => {
     const loc = useLocation();
@@ -93,3 +98,12 @@ export default component$(() => {
         </div>
     );
 });
+export const head: DocumentHead = {
+    title: "Invoices",
+    meta: [
+        {
+            name: "description",
+            content: "Learning qwik with dashboard | Invoices",
+        },
+    ],
+};

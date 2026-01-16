@@ -7,18 +7,20 @@ import {
     HiUserCircleOutline,
 } from "@qwikest/icons/heroicons";
 import { Button } from "~/components/ui/button";
-import type { CustomerField, InvoiceForm } from "~/lib/definitions";
+import { useUpdateInvoice } from "~/routes/dashboard/invoices/[id]/edit";
+import { SelectCustomer, SelectInvoice } from "../../../../drizzle/schema";
 
 export const EditInvoiceForm = component$(
     ({
         invoice,
         customers,
     }: {
-        invoice: InvoiceForm;
-        customers: CustomerField[];
+        invoice: SelectInvoice;
+        customers: SelectCustomer[];
     }) => {
+        const updateInvoiceAction = useUpdateInvoice();
         return (
-            <Form>
+            <Form action={updateInvoiceAction}>
                 <div class="rounded-md bg-gray-50 p-4 md:p-6">
                     {/* Customer Name */}
                     <div class="mb-4">
@@ -31,9 +33,9 @@ export const EditInvoiceForm = component$(
                         <div class="relative">
                             <select
                                 id="customer"
-                                name="customerId"
+                                name="customerID"
                                 class="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-                                value={invoice.customer_id}
+                                value={invoice?.customerID}
                             >
                                 <option>Select a customer</option>
                                 {customers.map((customer) => (
@@ -69,6 +71,13 @@ export const EditInvoiceForm = component$(
                                     class="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                                 />
                                 <HiCurrencyDollarOutline class="pointer-events-none absolute top-1/2 left-3 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                                <input
+                                    id="invoiceID"
+                                    name="id"
+                                    type="text"
+                                    value={invoice.id}
+                                    class="hidden"
+                                />
                             </div>
                         </div>
                     </div>
